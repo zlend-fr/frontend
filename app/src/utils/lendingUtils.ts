@@ -4,7 +4,7 @@
  * Handles lending, borrowing, and querying lending-related data
  */
 
-import { LENDING_PROGRAM_ID, LENDING_TOKENS } from '../constants/lending';
+import { LENDING_PROGRAM_ID, LENDING_PROGRAM_ID_USDQ, LENDING_TOKENS, getProgramIdForToken } from '../constants/lending';
 import { RPC_URL } from '../constants';
 import { FEE_AMOUNT } from '../constants/lending';
 import { hashStruct } from './balanceUtils';
@@ -26,15 +26,16 @@ import {
 export const getLendingAPY = async (token_id: string): Promise<number> => {
   try {
     console.log('🔍 Fetching lending APY for token:', token_id);
+    const programId = getProgramIdForToken(token_id);
     const tokenKey = `{ token_id: "${token_id}" }`;
     const hashedKey = await hashStruct(tokenKey);
-    
+
     const requestBody = {
       jsonrpc: '2.0',
       id: 1,
       method: 'getMappingValue',
       params: {
-        program_id: LENDING_PROGRAM_ID,
+        program_id: programId,
         mapping_name: "lending_apy",
         key: hashedKey,
       },
@@ -81,15 +82,16 @@ export const getLendingAPY = async (token_id: string): Promise<number> => {
 export const getLendingRewards = async (token_id: string, publicKey: string): Promise<bigint> => {
   try {
     console.log('🔍 Fetching lending rewards for token:', token_id, 'and address:', publicKey);
+    const programId = getProgramIdForToken(token_id);
     const rewardKey = `{ token_id: "${token_id}", account: "${publicKey}" }`;
     const hashedKey = await hashStruct(rewardKey);
-    
+
     const requestBody = {
       jsonrpc: '2.0',
       id: 1,
       method: 'getMappingValue',
       params: {
-        program_id: LENDING_PROGRAM_ID,
+        program_id: programId,
         mapping_name: "lending_rewards",
         key: hashedKey,
       },
@@ -131,10 +133,10 @@ export const getLendingRewards = async (token_id: string, publicKey: string): Pr
  * Retrieves the current total supplied and borrowed amounts from the lending program
  * @returns {Promise<LendingTotals>} Object containing total supplied and borrowed amounts
  */
-export const getLendingTotals = async (): Promise<LendingTotals> => {
+export const getLendingTotals = async (programId: string = LENDING_PROGRAM_ID): Promise<LendingTotals> => {
   try {
-    console.log('🔍 Fetching lending totals...');
-    
+    console.log('🔍 Fetching lending totals for program:', programId);
+
     // Fetch supplied total
     console.log('📡 Fetching supplied_total mapping...');
     const response = await fetch(RPC_URL, {
@@ -145,7 +147,7 @@ export const getLendingTotals = async (): Promise<LendingTotals> => {
         id: 1,
         method: 'getMappingValue',
         params: {
-          program_id: LENDING_PROGRAM_ID,
+          program_id: programId,
           mapping_name: "supplied_total",
           key: "true"
         }
@@ -170,7 +172,7 @@ export const getLendingTotals = async (): Promise<LendingTotals> => {
         id: 1,
         method: 'getMappingValue',
         params: {
-          program_id: LENDING_PROGRAM_ID,
+          program_id: programId,
           mapping_name: "borrowed_total",
           key: "true"
         }
@@ -204,10 +206,15 @@ export const getLendingTotals = async (): Promise<LendingTotals> => {
 export const getActiveLends = async (requestRecords: (programId: string) => Promise<any[]>): Promise<LendingPosition[]> => {
   try {
     console.log('🔍 Fetching active lending records...');
-    console.log('📡 Using LENDING_PROGRAM_ID:', LENDING_PROGRAM_ID);
-    
-    // Request all records from the lending program
-    const records = await requestRecords(LENDING_PROGRAM_ID);
+
+    // Request records from both lending programs
+    const [recordsUSDG, recordsUSDQ] = await Promise.all([
+      requestRecords(LENDING_PROGRAM_ID),
+      requestRecords(LENDING_PROGRAM_ID_USDQ)
+    ]);
+    const taggedUSDG = recordsUSDG.map(r => ({ ...r, _programId: LENDING_PROGRAM_ID }));
+    const taggedUSDQ = recordsUSDQ.map(r => ({ ...r, _programId: LENDING_PROGRAM_ID_USDQ }));
+    const records = [...taggedUSDG, ...taggedUSDQ];
     console.log('📥 Raw lending records:', records);
 
     if (!records || records.length === 0) {
@@ -215,20 +222,21 @@ export const getActiveLends = async (requestRecords: (programId: string) => Prom
       return [];
     }
 
-    // Filter and parse lending records
+    // Filter and parse lending records (avUSDG and avUSDQ)
     const lendingPositions = records
-      .filter(record => !record.spent && record.recordName === 'avUSDG')
+      .filter(record => !record.spent && (record.recordName === 'avUSDG' || record.recordName === 'avUSDQ'))
       .map(record => {
         console.log('🔍 Processing record:', record);
         const amount = BigInt(record.data.amount.split('u128')[0]);
         const timestamp = Number(record.data.timestamp.split('u32')[0]);
         const apy_snapshot = record.data.apy_snapshot;
-        
+
         return {
           amount,
           timestamp,
           id: record.id,
-          apy_snapshot
+          apy_snapshot,
+          programId: record._programId
         };
       });
 
@@ -245,7 +253,7 @@ export const getActiveLends = async (requestRecords: (programId: string) => Prom
  * @param {string} loanId - The public ID of the loan
  * @returns {Promise<LoanPublic | null>} The loan details or null if not found
  */
-export const getPublicLoanDetails = async (loanId: string): Promise<LoanPublic | null> => {
+export const getPublicLoanDetails = async (loanId: string, programId: string = LENDING_PROGRAM_ID): Promise<LoanPublic | null> => {
   try {
     // Extract the numeric ID from the loan ID (e.g., "3u32.private" -> "3")
     const numericId = loanId.match(/(\d+)u32/)?.[1];
@@ -261,7 +269,7 @@ export const getPublicLoanDetails = async (loanId: string): Promise<LoanPublic |
       id: 1,
       method: 'getMappingValue',
       params: {
-        program_id: LENDING_PROGRAM_ID,
+        program_id: programId,
         mapping_name: "loans_public",
         key: `${numericId}u32`
       }
@@ -337,12 +345,20 @@ export const getPublicLoanDetails = async (loanId: string): Promise<LoanPublic |
 export const getActiveBorrows = async (requestRecords: (programId: string) => Promise<any[]>): Promise<BorrowPosition[]> => {
   try {
     console.log('🔍 Fetching active borrow records...');
-    const records = await requestRecords(LENDING_PROGRAM_ID);
+    const [recordsUSDG, recordsUSDQ] = await Promise.all([
+      requestRecords(LENDING_PROGRAM_ID),
+      requestRecords(LENDING_PROGRAM_ID_USDQ)
+    ]);
+
+    // Tag records with their source program
+    const taggedRecordsUSDG = recordsUSDG.map(r => ({ ...r, _programId: LENDING_PROGRAM_ID }));
+    const taggedRecordsUSDQ = recordsUSDQ.map(r => ({ ...r, _programId: LENDING_PROGRAM_ID_USDQ }));
+    const records = [...taggedRecordsUSDG, ...taggedRecordsUSDQ];
     console.log('📥 Records received:', records.length);
 
     // Filter for unspent LoanPrivate records
-    const borrowRecords = records.filter(record => 
-      !record.spent && 
+    const borrowRecords = records.filter(record =>
+      !record.spent &&
       record.recordName === 'LoanPrivate'
     );
 
@@ -362,7 +378,7 @@ export const getActiveBorrows = async (requestRecords: (programId: string) => Pr
         continue;
       }
 
-      const loanDetails = await getPublicLoanDetails(loanId);
+      const loanDetails = await getPublicLoanDetails(loanId, record._programId);
       if (!loanDetails) {
         console.warn('⚠️ Could not fetch details for loan:', loanId);
         continue;
@@ -424,15 +440,15 @@ const getBlockHeight = async (): Promise<number> => {
  * Retrieves the next available loan ID from the lending program
  * @returns {Promise<number>} The next available loan ID
  */
-export const getNextLoanId = async (): Promise<number> => {
+export const getNextLoanId = async (programId: string = LENDING_PROGRAM_ID): Promise<number> => {
   try {
-    console.log('🔍 Fetching next loan ID...');
+    console.log('🔍 Fetching next loan ID for program:', programId);
     const requestBody = {
       jsonrpc: '2.0',
       id: 1,
       method: 'getMappingValue',
       params: {
-        program_id: LENDING_PROGRAM_ID,
+        program_id: programId,
         mapping_name: "last_loan_id",
         key: "true"
       }
@@ -489,16 +505,19 @@ export const prepareLendingTransaction = async (
     console.log('📖 Based on: https://docs.leo.app/aleo-wallet-adapter');
 
     // Verify token_id matches supported tokens
-    if (token_id !== LENDING_TOKENS.vUSDG) {
-      throw new Error('Invalid token ID. Only vUSDG tokens are supported.');
+    if (token_id !== LENDING_TOKENS.vUSDG && token_id !== LENDING_TOKENS.vUSDQ) {
+      throw new Error('Invalid token ID. Only vUSDG and vUSDQ tokens are supported.');
     }
+
+    const programId = getProgramIdForToken(token_id);
+    console.log('📡 Using program:', programId);
 
     // Get current block height
     const blockHeight = await getBlockHeight();
     console.log('📊 Current block height:', blockHeight);
 
     // Get current lending totals
-    const { supplied, borrowed } = await getLendingTotals();
+    const { supplied, borrowed } = await getLendingTotals(programId);
     console.log('📊 Current lending totals:', { supplied: supplied.toString(), borrowed: borrowed.toString() });
 
     // Format record as JSON object (official format)
@@ -517,7 +536,7 @@ export const prepareLendingTransaction = async (
       address: publicKey,
       chainId: "testnetbeta",
       transitions: [{
-        program: LENDING_PROGRAM_ID,
+        program: programId,
         functionName: 'lend',
         inputs: [
           recordForTransaction,
@@ -549,10 +568,11 @@ export const prepareLendingTransaction = async (
  */
 export const prepareRedeemTransaction = async (
   lendingProof: LendingProof,
-  publicKey: string
+  publicKey: string,
+  programId: string = LENDING_PROGRAM_ID
 ): Promise<LendingTransaction> => {
   try {
-    console.log('🔄 Preparing redeem transaction...');
+    console.log('🔄 Preparing redeem transaction for program:', programId);
     console.log('📄 Using lending proof:', lendingProof);
 
     // Get current block height
@@ -560,16 +580,19 @@ export const prepareRedeemTransaction = async (
     console.log('📊 Current block height:', blockHeight);
 
     // Get current supplied total
-    const { supplied } = await getLendingTotals();
+    const { supplied } = await getLendingTotals(programId);
     console.log('📊 Current supplied total:', supplied.toString());
 
-    // Format the avUSDG record
-    const avUSDGRecord = {
+    // Determine record name based on program
+    const recordName = programId === LENDING_PROGRAM_ID_USDQ ? "avUSDQ" : "avUSDG";
+
+    // Format the avToken record
+    const avTokenRecord = {
       id: lendingProof.id,
       owner: lendingProof.owner,
-      program_id: LENDING_PROGRAM_ID,
+      program_id: programId,
       spent: false,
-      recordName: "avUSDG",
+      recordName,
       data: {
         owner: lendingProof.owner,
         amount: lendingProof.amount,
@@ -578,16 +601,16 @@ export const prepareRedeemTransaction = async (
       }
     };
 
-    console.log('📋 Formatted avUSDG record:', avUSDGRecord);
+    console.log('📋 Formatted record:', avTokenRecord);
 
     const transaction = {
       address: publicKey,
       chainId: "testnetbeta",
       transitions: [{
-        program: LENDING_PROGRAM_ID,
+        program: programId,
         functionName: 'redeem',
         inputs: [
-          avUSDGRecord,
+          avTokenRecord,
           `${blockHeight}u32`,
           `${supplied}u128`
         ]
@@ -618,21 +641,22 @@ export const prepareBorrowTransaction = async (
   collateralToken: TokenRecord,
   collateralAmount: bigint,
   borrowedAmount: bigint,
-  publicKey: string
+  publicKey: string,
+  programId: string = LENDING_PROGRAM_ID
 ): Promise<LendingTransaction> => {
   try {
-    console.log('🚀 Preparing borrow transaction...');
+    console.log('🚀 Preparing borrow transaction for program:', programId);
 
     // Get current block height
     const blockHeight = await getBlockHeight();
     console.log('📊 Current block height:', blockHeight);
 
     // Get current lending totals
-    const { supplied, borrowed } = await getLendingTotals();
+    const { supplied, borrowed } = await getLendingTotals(programId);
     console.log('📊 Current lending totals:', { supplied: supplied.toString(), borrowed: borrowed.toString() });
 
     // Get the next loan ID from the program
-    const nextLoanId = await getNextLoanId();
+    const nextLoanId = await getNextLoanId(programId);
     console.log('📊 Using loan ID:', nextLoanId);
 
     // Format the collateral token record
@@ -649,7 +673,7 @@ export const prepareBorrowTransaction = async (
       address: publicKey,
       chainId: "testnetbeta",
       transitions: [{
-        program: LENDING_PROGRAM_ID,
+        program: programId,
         functionName: 'borrow',
         inputs: [
           `${nextLoanId}u32`,
@@ -685,20 +709,21 @@ export const prepareRedeemBorrowTransaction = async (
   id: string,
   owner: string,
   repaymentToken: TokenRecord,
-  loanPrivateRecord: TokenRecord
+  loanPrivateRecord: TokenRecord,
+  programId: string = LENDING_PROGRAM_ID
 ): Promise<LendingTransaction> => {
-  console.log('🔄 Preparing redeem borrow transaction...');
+  console.log('🔄 Preparing redeem borrow transaction for program:', programId);
 
   // Get current block height
   const blockHeight = await getBlockHeight();
   console.log('📊 Current block height:', blockHeight);
 
   // Get current borrowed total
-  const { borrowed } = await getLendingTotals();
+  const { borrowed } = await getLendingTotals(programId);
   console.log('📊 Current borrowed total:', borrowed);
 
   // Get loan details from the mapping
-  const loanDetails = await getPublicLoanDetails(id);
+  const loanDetails = await getPublicLoanDetails(id, programId);
   console.log('📋 Raw loan details:', loanDetails);
 
   if (!loanDetails) {
@@ -748,7 +773,7 @@ export const prepareRedeemBorrowTransaction = async (
     chainId: 'testnetbeta',
     transitions: [
       {
-        program: LENDING_PROGRAM_ID,
+        program: programId,
         functionName: 'redeem_borrow',
         inputs: [
           formattedRepaymentToken,

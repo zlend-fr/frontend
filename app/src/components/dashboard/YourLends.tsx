@@ -12,7 +12,7 @@ import { getActiveLends, prepareRedeemTransaction } from '../../utils/lendingUti
 import { formatBalance } from '../../utils/formatUtils';
 import { SUPPORTED_TOKENS } from '../../constants/tokens';
 import { useSuccessAnimation } from '../../contexts/SuccessAnimationContext';
-import { LENDING_TOKENS } from '../../constants/lending';
+import { LENDING_TOKENS, LENDING_PROGRAM_ID, LENDING_PROGRAM_ID_USDQ } from '../../constants/lending';
 import type { LendPosition, YourLendsProps } from '../../interfaces';
 
 /**
@@ -100,7 +100,8 @@ const YourLends: React.FC<YourLendsProps> = ({
         amount: lend.amount,
         timestamp: lend.timestamp,
         apy_snapshot: lend.apy_snapshot,
-        apy: Number(lend.apy_snapshot?.replace('u128.private', '') || '0')
+        apy: Number(lend.apy_snapshot?.replace('u128.private', '') || '0'),
+        programId: lend.programId
       }));
 
       setLends(sortedLends);
@@ -138,7 +139,7 @@ const YourLends: React.FC<YourLendsProps> = ({
       console.log('📄 Formatted lending proof:', JSON.stringify(lendingProof, null, 2));
 
       // Prepare and execute transaction
-      const transaction = await prepareRedeemTransaction(lendingProof, publicKey);
+      const transaction = await prepareRedeemTransaction(lendingProof, publicKey, lendPosition.programId);
       console.log('💾 Prepared redeem transaction:', transaction);
 
       const txId = await requestTransaction(transaction);
@@ -213,17 +214,21 @@ const YourLends: React.FC<YourLendsProps> = ({
         try {
           console.log(`🔍 Polling for new avUSDG records for transaction ${pendingLend.transactionId}`);
           
-          // Get all lending program records
-          const records = await requestRecords('nafrqqtcxg.aleo');
+          // Get records from both lending programs
+          const [recordsUSDG, recordsUSDQ] = await Promise.all([
+            requestRecords(LENDING_PROGRAM_ID),
+            requestRecords(LENDING_PROGRAM_ID_USDQ)
+          ]);
+          const records = [...recordsUSDG, ...recordsUSDQ];
           console.log('📥 All records received:', records.length);
-          
-          // Filter for unspent avUSDG records that we haven't seen before
-          const avUSDGRecords = records.filter(record => 
-            !record.spent && 
-            record.recordName === 'avUSDG'
+
+          // Filter for unspent avUSDG/avUSDQ records that we haven't seen before
+          const avUSDGRecords = records.filter(record =>
+            !record.spent &&
+            (record.recordName === 'avUSDG' || record.recordName === 'avUSDQ')
           );
-          
-          console.log('📋 avUSDG records found:', avUSDGRecords);
+
+          console.log('📋 avToken records found:', avUSDGRecords);
 
           // Check if we have a new record that wasn't in our active lends
           for (const record of avUSDGRecords) {
@@ -264,7 +269,8 @@ const YourLends: React.FC<YourLendsProps> = ({
                 amount: amount,
                 timestamp: timestamp,
                 apy_snapshot: apy_snapshot,
-                apy: Number(apy_snapshot)
+                apy: Number(apy_snapshot),
+                programId: record.recordName === 'avUSDQ' ? LENDING_PROGRAM_ID_USDQ : LENDING_PROGRAM_ID
               };
 
               // Update active lends immediately

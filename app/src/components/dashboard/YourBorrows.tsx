@@ -11,7 +11,7 @@ import { formatBalance } from '../../utils/formatUtils';
 import { SUPPORTED_TOKENS } from '../../constants/tokens';
 import { useSuccessAnimation } from '../../contexts/SuccessAnimationContext';
 import { getActiveBorrows, prepareRedeemBorrowTransaction } from '../../utils/lendingUtils';
-import { LENDING_PROGRAM_ID } from '../../constants/lending';
+import { LENDING_PROGRAM_ID, LENDING_PROGRAM_ID_USDQ } from '../../constants/lending';
 import type { BorrowPosition, TokenBalances } from '../../interfaces';
 
 /**
@@ -164,8 +164,12 @@ const YourBorrows: React.FC<YourBorrowsProps> = ({
         try {
           console.log(`🔍 Polling for new LoanPrivate records for transaction ${pendingBorrow.transactionId}`);
           
-          // Get all LoanPrivate records
-          const records = await requestRecords('nafrqqtcxg.aleo');
+          // Get LoanPrivate records from both lending programs
+          const [recordsUSDG, recordsUSDQ] = await Promise.all([
+            requestRecords(LENDING_PROGRAM_ID),
+            requestRecords(LENDING_PROGRAM_ID_USDQ)
+          ]);
+          const records = [...recordsUSDG, ...recordsUSDQ];
           console.log('📥 All records received:', records.length);
           
           // Filter for unspent LoanPrivate records that we haven't seen before
@@ -323,8 +327,12 @@ const YourBorrows: React.FC<YourBorrowsProps> = ({
       const tokenRecords = await requestRecords('token_registry.aleo');
       console.log('📥 Received token records:', tokenRecords.length, 'records');
 
-      // Get loan records
-      const loanRecords = await requestRecords(LENDING_PROGRAM_ID);
+      // Get loan records from both programs
+      const [loanRecordsUSDG, loanRecordsUSDQ] = await Promise.all([
+        requestRecords(LENDING_PROGRAM_ID),
+        requestRecords(LENDING_PROGRAM_ID_USDQ)
+      ]);
+      const loanRecords = [...loanRecordsUSDG, ...loanRecordsUSDQ];
       console.log('📥 Received loan records:', loanRecords.length, 'records');
 
       // Find a suitable token record for repayment
