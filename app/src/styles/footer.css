@@ -1,0 +1,90 @@
+.footer {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  padding: 1.2rem 2rem;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 1340px;
+  margin: 0 auto;
+  z-index: 100;
+  justify-content: space-between;
+  align-items: center;
+  mix-blend-mode: difference;
+  box-sizing: border-box;
+}
+
+.footer-nav-links {
+  display: flex;
+  font-size: 0.9rem;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s ease;
+}
+
+.footer-link:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.tvl {
+  position: absolute;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  cursor: default;
+  letter-spacing: 0.03em;
+}
+
+.footer-social-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.social-icon {
+  display: flex;
+  width: auto;
+  height: 28px;
+  color: white;
+  font-size: 1.1rem;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+
+.social-icon:hover {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 1rem;
+  }
+
+  .footer-social-icons,
+  .footer-nav-links {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tvl {
+    position: static;
+    transform: none;
+    width: 100%;
+  }
+}

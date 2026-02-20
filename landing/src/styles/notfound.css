@@ -1,0 +1,64 @@
+.notFoundPageContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  min-height: 100vh;
+  background: radial-gradient(140% 107.13% at 50% 10%, transparent 37.41%, #63e 69.27%, #fff 100%);
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+.title404 {
+  margin: -200px 0 20px 0;
+  font-family: "Aleo Font";
+  font-size: clamp(8rem, 10vw, 15rem);
+  color: #008f32;
+}
+
+.subtitle404 {
+  margin: 0 0 5px 0;
+  font-size: clamp(1rem, 10vw, 2rem);
+  font-family: "Alpha", monospace;
+  color: white;
+}
+
+.message404 {
+  margin: 0 0 70px 0;
+  font-size: clamp(0.8rem, 2vw, 1.25rem);
+  color: white;
+  line-height: 1.6;
+}
+
+.error-link {
+  position: relative;
+  display: inline-flex;
+  font-family: 'Noto Sans';
+  font-size: clamp(1.7rem, 2.5vw, 0.6rem);
+  font-weight: 400;
+  text-decoration: none;
+  color: white;
+  align-items: center;
+  letter-spacing: 0.02em;
+  gap: 12px;
+  transition: 0.2s ease;
+}
+
+.error-link:hover {
+  transform: scale(1.01);
+  gap: 14px;
+  color: #008f32;
+}
+
+.error-arrow {
+  position: relative;
+  margin: 5px 0 0 0px;
+  transition: 0.2s ease;
+  width: 20pt;
+  height: 20pt;
+  fill: white;
+}
+
+.error-container:hover .error-arrow {
+  fill: #008f32;
+}

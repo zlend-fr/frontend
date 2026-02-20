@@ -1,0 +1,231 @@
+.footer-container {
+  margin-top: -271px;
+  background-color: transparent;
+  z-index: 999;
+}
+
+/* Footer Decorations */
+/* Footer Decorations */
+/* Footer Decorations */
+/* Footer Decorations */
+/* Footer Decorations */
+
+.footer-decorations {
+  display: flex;
+  margin: 0 auto;
+  flex-direction: column;
+  z-index: 2000;
+  width: 100%;
+  max-width: 1440px;
+  height: fit-content;
+}
+
+.footer-decorations-top {
+  width: 100%;
+  height: 91px;
+  background-image: linear-gradient(90deg, transparent 0, transparent 270px, black 271px, black 1170px, transparent 1171px);
+}
+
+.footer-decorations-bottom {
+  width: 100%;
+  height: 91px;
+  background-image: linear-gradient(90deg, transparent 0, transparent 90px, black 91px, black 1350px, transparent 1351px);
+}
+
+/* Footer */
+/* Footer */
+/* Footer */
+/* Footer */
+/* Footer */
+
+.footer {
+  padding: 50px 2rem 80px 2rem;
+  background-color: black;
+}
+
+.footer-content {
+  display: flex;
+  margin: -95.5px auto auto auto;
+  width: 1168px;
+  justify-content: space-between;
+}
+
+/* Footer LEFT */
+/* Footer LEFT */
+/* Footer LEFT */
+/* Footer LEFT */
+/* Footer LEFT */
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  width: 80px;
+  height: auto;
+}
+
+.footer-description {
+  margin: 1rem auto 80px 0;
+  font-family: 'Noto Sans';
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-social {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+}
+
+.social-link {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.4);
+  transition: 0.1s ease;
+}
+
+.social-link:hover {
+  color: white;
+}
+
+/* Footer RIGHT */
+/* Footer RIGHT */
+/* Footer RIGHT */
+/* Footer RIGHT */
+/* Footer RIGHT */
+
+.footer-right {
+  display: flex;
+  flex-direction: row;
+  gap: 80px;
+}
+
+.footer-right-section {
+  width: fit-content;
+}
+
+.footer-right-section p {
+  margin-bottom: 1rem;
+  font-family: 'Noto Sans';
+  font-size: 1rem;
+  color: white;
+}
+
+.footer-right-section ul {
+  list-style: none;
+}
+
+.footer-right-section ul li {
+  margin-bottom: 1rem;
+}
+
+.footer-right-section ul li a {
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'Noto Sans';
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-right-section ul li a:hover {
+  color: white;
+}
+
+.footer-copyright {
+  font-family: 'Noto Sans';
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Footer Mobile */
+/* Footer Mobile */
+/* Footer Mobile */
+/* Footer Mobile */
+/* Footer Mobile */
+
+@media (max-width: 1440px) {
+  .footer-content {
+    display: flex;
+    margin: -70px auto auto auto !important;
+    width: 81.1111111112vw !important;
+  }
+
+  .footer-decorations-top {
+    height: 60px;
+    background-image: linear-gradient(90deg, transparent 0, transparent 18.75vw, black 18.7569444444vw, black 81.25vw, transparent 81.2569444444vw);
+  }
+
+  .footer-decorations-bottom {
+    height: 60px;
+    background-image: linear-gradient(90deg, transparent 0, transparent 6.25vw, black 6.3194444444vw, black 93.75vw, transparent 93.8194444444vw);
+  }
+}
+
+@media (max-width: 1200px) {
+  .footer-description {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 1040px) {
+  .footer-description {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 920px) {
+  .footer-description {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    display: flex;
+    margin: -100px auto auto auto !important;
+    width: 62.5vw !important;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2rem;
+  }
+
+  .footer-logo {
+    margin: 0 auto 20px auto;
+  }
+
+  .footer-description {
+    margin: 20px auto 35px auto !important;
+    max-width: 100%;
+    font-size: 0.65rem !important;
+  }
+
+  .footer-decorations-top {
+    display: none;
+  }
+
+  .footer-right {
+    gap: 50px !important;
+  }
+
+  .footer-social {
+    margin: 0 auto !important;
+  }
+
+  .footer-decorations-bottom {
+    height: 100px;
+    background-image: linear-gradient(90deg, transparent 0, transparent 12.5vw, black 12.53125vw, black 87.5vw, transparent 87.53125vw);
+  }
+
+  .footer-right-section p, .footer-right-section ul li a {
+    font-size: 0.85rem !important;
+  }
+
+  .footer-right-section ul li {
+    margin-bottom: 0.6rem !important;
+  }
+} 

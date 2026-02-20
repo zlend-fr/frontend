@@ -1,0 +1,26 @@
+{
+  "name": "zlend-fi-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "app",
+    "landing"
+  ],
+  "scripts": {
+    "start:app": "npm run dev --workspace=app",
+    "start:landing": "npm run dev --workspace=landing",
+    "build:app": "npm run build --workspace=app",
+    "build:landing": "npm run build --workspace=landing",
+    "lint:app": "npm run lint --workspace=app",
+    "lint:landing": "npm run lint --workspace=landing"
+  },
+  "dependencies": {
+    "@demox-labs/aleo-sdk": "^0.4.1",
+    "@provablehq/sdk": "^0.9.0",
+    "@types/styled-components": "^5.1.34",
+    "comlink": "^4.4.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "styled-components": "^6.1.18"
+  }
+}

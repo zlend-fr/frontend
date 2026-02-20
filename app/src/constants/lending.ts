@@ -1,0 +1,20 @@
+export const LENDING_PROGRAM_ID = "f2k9w7q3z8m1.aleo";
+
+export const LENDING_TOKENS = {
+  vUSDG: "5983142094692128773510225623816045070304444621008302359049788306211838130558field",
+  vETE: "7282192565387792361809088173158053178461960397100960262024562261205950610485field",
+  avUSDG: "avUSDG"
+} as const;
+
+export const FEE_AMOUNT = 1000000;
+
+export const LENDING_FUNCTIONS = {
+  LEND: "lend",
+  REDEEM: "redeem",
+  WITHDRAW: "withdraw"
+} as const;
+
+export const LENDING_MAPPINGS = {
+  REWARDS: "rewards",
+  APY: "apy"
+} as const; 

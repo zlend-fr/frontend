@@ -1,0 +1,262 @@
+.badge {
+  position: relative;
+  margin: 0 auto;
+  padding: 250px 0 375px 0;
+  width: 100%;
+  height: fit-content;
+  background-color: #f5f5f5;
+  overflow: visible;
+}
+
+.badge-content {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
+  padding: 40px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  background-color: #ececec;
+  border-radius: 20px;
+  z-index: 2;
+  gap: 40px;
+  box-shadow: 0 0 0 18px #f5f5f5,
+              0 0 0 20px #ececec;
+}
+
+.badge-title {
+  margin-bottom: 10px;
+  font-family: 'Aleo Font';
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: black;
+}
+
+.aleo-logo {
+  height: 2rem;
+  width: auto;
+}
+
+.badge-description {
+  margin-bottom: 50px;
+  width: 500px;
+  font-family: 'Noto Sans';
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgb(98, 98, 98);
+}
+
+.badge-button {
+  display: inline-flex;
+  padding: 10px 15px;
+  align-items: center;
+  background-color: black;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-button-text {
+  font-family: 'Noto Sans';
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600; 
+  color: white;
+  position: relative;
+  z-index: 1;
+  mix-blend-mode: difference;
+}
+
+.badge-button-arrow {
+  position: relative;
+  transition: transform 0.2s ease;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Alpha';
+  color: white;
+  font-size: 1.2rem;
+  line-height: 1;
+  mix-blend-mode: difference;
+}
+
+.badge-button:hover .badge-button-arrow {
+  transform: translateX(5px);
+}
+
+.animated-pixel {
+  position: absolute;
+  background-color: #f5f5f5;
+  opacity: 0;
+}
+
+.aleo-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.badge-image {
+  position: absolute;
+  width: 400px;
+  right: 0;
+  bottom: -140px;
+  height: auto;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.aleo-badge-image {
+  position: absolute;
+  width: 245px;
+  right: 90px;
+  z-index: 1;
+}
+
+.badge-button-arrow {
+  position: relative;
+  margin: 2px 0 0 0px;
+  transition: 0.2s ease;
+  width: 12pt;
+  height: 12pt;
+  fill: white;
+}
+
+.badge-button:hover .badge-button-arrow {
+  margin: 2px 0 0 2px;
+}
+
+.in-partnership {
+  display: flex;
+  margin-top: 50px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.in-partnership p {
+  font-family: 'Alpha';
+  font-size: 1.7rem;
+  color: black;
+}
+
+.in-partnership img {
+  width: 160px;
+  height: auto;
+}
+
+@media (max-width: 1340px) {
+  .badge-content {
+    max-width: 82%;
+  }
+}
+
+@media (max-width: 748px) {
+  .badge-description {
+    margin: 0 auto !important;
+    width: 90% !important;
+    font-size: 0.8rem !important;
+  }
+
+  .badge {
+    padding: 100px 0 375px 0;
+  }
+}
+
+@media (max-width: 1060px) {
+  .badge-button {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .badge-button:hover {
+    box-shadow: none;
+  }
+  
+  .animated-pixel {
+    position: absolute;
+    background-color: transparent;
+    opacity: 0;
+  }
+
+  .powered-by-aleo {
+    padding: 60px 0 60px;
+  }
+  
+  .badge-content {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+    gap: 30px;
+    max-width: 80%;
+    margin: 0 auto;
+  }
+
+  .badge-info {
+    align-items: center;
+  }
+
+  .badge-description {
+    width: 500px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .badge-button {
+    padding: 12px 20px;
+  }
+
+  .badge-title {
+    font-size: 2rem;
+  }
+  
+  .aleo-logo {
+    height: 1.5rem;
+    width: auto;
+  }
+
+  .badge-image {
+    position: absolute;
+    width: 350px;
+    bottom: -30px;
+    right: auto;
+    height: auto;
+    object-fit: contain;
+    z-index: 2;
+  }
+  
+  .aleo-badge-image {
+    position: relative;
+    margin: 200px auto 0 auto;
+    right: 0;
+    bottom: 60px;
+    width: 200px;
+    z-index: 1;
+  }
+
+  .in-partnership p {
+    font-family: 'Alpha';
+    font-size: 1.1rem;
+    color: black;
+  }
+  
+  .in-partnership img {
+    width: 100px;
+    height: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .badge-description {
+    width: 300px;
+  }
+}

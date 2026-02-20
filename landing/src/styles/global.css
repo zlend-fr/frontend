@@ -1,0 +1,54 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100vw;
+  height: 100%;
+  background-color: #010314;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+@font-face {
+  font-family: 'Alpha';
+  src: url('/fonts/alphafont.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aleo Font';
+  src: url('/fonts/aleofont.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+li {
+  font-family: 'Noto Sans';
+}
+
+::selection {
+  background-color: #008f32;
+  color: black;
+}
