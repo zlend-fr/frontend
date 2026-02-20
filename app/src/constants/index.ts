@@ -9,15 +9,15 @@ export const NAVIGATION_ITEMS = [
 
 export const SOCIAL_MEDIA = {
   twitter: {
-    url: 'https://twitter.com/zLendfi',
+    url: 'https://x.com/edenbdn',
     label: 'Twitter'
   },
   discord: {
-    url: 'https://discord.gg/VJkXvVKWfp',
+    url: 'https://discord.gg/aleo',
     label: 'Discord'
   },
   github: {
-    url: 'https://github.com/zLend-fi',
+    url: 'https://github.com/zlend-fr',
     label: 'GitHub'
   }
 } as const;

@@ -82,7 +82,7 @@ export const FAQ_ITEMS: IFaqItem[] = [
   {
     id: 'support',
     question: 'How can I get support or report issues?',
-    answer: `Reach out to us at <a href="mailto:contact@zlend.fi" style="color: #008f32;font-weight: 600;text-decoration: none;">contact@zlend.fi</a> or join our community on <a href="https://discord.gg/VJkXvVKWfp" target="_blank" rel="noopener noreferrer" style="color: #008f32;font-weight: 600;text-decoration: none;">Discord</a> for assistance.`,
+    answer: `Reach out to us at <a href="mailto:contact@zlend.fi" style="color: #008f32;font-weight: 600;text-decoration: none;">contact@zlend.fi</a> or join our community on <a href="https://discord.gg/aleo" target="_blank" rel="noopener noreferrer" style="color: #008f32;font-weight: 600;text-decoration: none;">Discord</a> for assistance.`,
     theme: 'Additional Information'
   }
 ];

@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
 
       <div className="footer-social-icons">
         <a 
-          href="https://discord.gg/VJkXvVKWfp"
+          href="https://discord.gg/aleo"
           className="social-icon"
           target="_blank"
           rel="noopener noreferrer"
@@ -123,7 +123,7 @@ const Footer: React.FC = () => {
           <FaDiscord />
         </a>
         <a 
-          href="https://twitter.com/zLendfi"
+          href="https://x.com/edenbdn"
           className="social-icon"
           target="_blank"
           rel="noopener noreferrer"
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
           <FaTwitter />
         </a>
         <a 
-          href="https://github.com/zLend-fi" 
+          href="https://github.com/zlend-fr" 
           className="social-icon"
           target="_blank"
           rel="noopener noreferrer"

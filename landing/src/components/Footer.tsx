@@ -19,9 +19,9 @@ const Footer: React.FC = () => {
               <p>zlend is a decentralized peer-to-peer lending and borrowing protocol built on Aleo. Unlike traditional protocols, it leverages zero-knowledge technology to enable private transactions, with a liquidation mechanism based on collateral value. Users can lend and borrow ETH, USDC, and Aleo while preserving both privacy and security.</p>
             </div>
             <div className="footer-social">
-              <a href="https://discord.gg/VJkXvVKWfp" className="social-link" target="_blank" rel="noopener noreferrer"><FaDiscord /></a>
-              <a href="https://twitter.com/zLendfi" className="social-link" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-              <a href="https://github.com/zLend-fi" className="social-link" target="_blank" rel="noopener noreferrer"><FaGithub /></a>
+              <a href="https://discord.gg/aleo" className="social-link" target="_blank" rel="noopener noreferrer"><FaDiscord /></a>
+              <a href="https://x.com/edenbdn" className="social-link" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
+              <a href="https://github.com/zlend-fr" className="social-link" target="_blank" rel="noopener noreferrer"><FaGithub /></a>
             </div>
           </div>
 
@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
               <ul>
                 <li><a href="https://aleo.org/" target="_blank" rel="noopener noreferrer">Aleo</a></li>
                 <li><a href="https://provable.com/" target="_blank" rel="noopener noreferrer">Provable</a></li>
-                <li><a href="https://zsociety.io/" target="_blank" rel="noopener noreferrer">zSociety</a></li>  
+                <li><a href="https://app.akindo.io/wave-hacks/gXdXJvJXxTJKBELvo?tab=overview" target="_blank" rel="noopener noreferrer">Akindo</a></li>  
               </ul>
             </div>
             <div className="footer-right-section">
