@@ -165,7 +165,7 @@ const YourBorrows: React.FC<YourBorrowsProps> = ({
           console.log(`🔍 Polling for new LoanPrivate records for transaction ${pendingBorrow.transactionId}`);
           
           // Get all LoanPrivate records
-          const records = await requestRecords('y2d7k5b1m8q6.aleo');
+          const records = await requestRecords('nafrqqtcxg.aleo');
           console.log('📥 All records received:', records.length);
           
           // Filter for unspent LoanPrivate records that we haven't seen before
