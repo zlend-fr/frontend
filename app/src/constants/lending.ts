@@ -19,6 +19,16 @@ export const getProgramIdForToken = (token_id: string): string => {
   return LENDING_PROGRAM_ID;
 };
 
+/**
+ * Returns the token ID for a given program ID
+ */
+export const getTokenIdForProgram = (programId: string): string => {
+  if (programId === LENDING_PROGRAM_ID_USDQ) {
+    return LENDING_TOKENS.vUSDQ;
+  }
+  return LENDING_TOKENS.vUSDG;
+};
+
 export const FEE_AMOUNT = 1000000;
 
 export const LENDING_FUNCTIONS = {

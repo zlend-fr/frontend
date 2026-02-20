@@ -4,7 +4,7 @@
  * Handles lending, borrowing, and querying lending-related data
  */
 
-import { LENDING_PROGRAM_ID, LENDING_PROGRAM_ID_USDQ, LENDING_TOKENS, getProgramIdForToken } from '../constants/lending';
+import { LENDING_PROGRAM_ID, LENDING_PROGRAM_ID_USDQ, LENDING_TOKENS, getProgramIdForToken, getTokenIdForProgram } from '../constants/lending';
 import { RPC_URL } from '../constants';
 import { FEE_AMOUNT } from '../constants/lending';
 import { hashStruct } from './balanceUtils';
@@ -236,7 +236,8 @@ export const getActiveLends = async (requestRecords: (programId: string) => Prom
           timestamp,
           id: record.id,
           apy_snapshot,
-          programId: record._programId
+          programId: record._programId,
+          tokenId: getTokenIdForProgram(record._programId)
         };
       });
 

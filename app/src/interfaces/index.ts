@@ -47,6 +47,7 @@ export interface LendingPosition {
   id: string;
   apy_snapshot?: string;
   programId?: string;
+  tokenId?: string;
 }
 
 export interface LendingTransaction {
@@ -68,6 +69,7 @@ export interface LendingTotals {
 
 export interface LendPosition {
   id: string;
+  tokenId?: string;
   amount: bigint;
   timestamp: number;
   apy_snapshot?: string;
@@ -76,6 +78,7 @@ export interface LendPosition {
 }
 
 export interface PendingLend {
+  tokenId: string;
   amount: bigint;
   timestamp: number;
   transactionId: string;

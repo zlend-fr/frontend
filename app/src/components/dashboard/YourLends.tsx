@@ -13,7 +13,7 @@ import { formatBalance } from '../../utils/formatUtils';
 import { SUPPORTED_TOKENS } from '../../constants/tokens';
 import { useSuccessAnimation } from '../../contexts/SuccessAnimationContext';
 import { LENDING_TOKENS, LENDING_PROGRAM_ID, LENDING_PROGRAM_ID_USDQ } from '../../constants/lending';
-import type { LendPosition, YourLendsProps } from '../../interfaces';
+import type { LendPosition, YourLendsProps, PendingLend } from '../../interfaces';
 
 /**
  * YourLends Component
@@ -97,6 +97,7 @@ const YourLends: React.FC<YourLendsProps> = ({
 
       const sortedLends: LendPosition[] = activeLends.map(lend => ({
         id: lend.id,
+        tokenId: lend.tokenId,
         amount: lend.amount,
         timestamp: lend.timestamp,
         apy_snapshot: lend.apy_snapshot,
@@ -149,7 +150,7 @@ const YourLends: React.FC<YourLendsProps> = ({
       showSuccessAnimation();
       setLends(prev => prev.filter(lend => lend.id !== lendPosition.id));
       if (onRedeemSuccess) {
-        onRedeemSuccess(LENDING_TOKENS.vUSDG, lendPosition.amount);
+        onRedeemSuccess(lendPosition.tokenId || LENDING_TOKENS.vUSDG, lendPosition.amount);
       }
 
       // Poll for transaction confirmation
@@ -264,13 +265,15 @@ const YourLends: React.FC<YourLendsProps> = ({
               });
 
               // Create new lend position
+              const positionProgramId = record.recordName === 'avUSDQ' ? LENDING_PROGRAM_ID_USDQ : LENDING_PROGRAM_ID;
               const newLendPosition: LendPosition = {
                 id: recordId,
+                tokenId: record.recordName === 'avUSDQ' ? LENDING_TOKENS.vUSDQ : LENDING_TOKENS.vUSDG,
                 amount: amount,
                 timestamp: timestamp,
                 apy_snapshot: apy_snapshot,
                 apy: Number(apy_snapshot),
-                programId: record.recordName === 'avUSDQ' ? LENDING_PROGRAM_ID_USDQ : LENDING_PROGRAM_ID
+                programId: positionProgramId
               };
 
               // Update active lends immediately
@@ -339,20 +342,30 @@ const YourLends: React.FC<YourLendsProps> = ({
     };
   }, [loadLends]);
 
-  // Calculate totals and averages
-  const totalAmountLent = lends.reduce((total, lend) => total + lend.amount, BigInt(0)) + 
-    pendingLends.reduce((total, lend) => total + lend.amount, BigInt(0));
+  // Helper to get token config from token ID
+  const getTokenConfig = (tokenId?: string) => {
+    const token = SUPPORTED_TOKENS.find(t => t.id === tokenId);
+    return token || SUPPORTED_TOKENS.find(t => t.id === LENDING_TOKENS.vUSDG);
+  };
 
-  const averageApy = lends.length > 0 
-    ? lends.reduce((sum, lend) => {
-        const weight = Number(lend.amount) / Number(totalAmountLent);
-        return sum + (lend.apy * weight);
-      }, 0)
-    : 0;
+  // Group lends and pending lends by token
+  const tokenGroups = (() => {
+    const groups: Record<string, { lends: LendPosition[]; pending: PendingLend[] }> = {};
 
-  // Get token configuration
-  const vUSDGToken = SUPPORTED_TOKENS.find(token => token.id === '5983142094692128773510225623816045070304444621008302359049788306211838130558field');
-  const decimals = vUSDGToken?.decimals || 6;
+    for (const lend of lends) {
+      const tid = lend.tokenId || LENDING_TOKENS.vUSDG;
+      if (!groups[tid]) groups[tid] = { lends: [], pending: [] };
+      groups[tid].lends.push(lend);
+    }
+
+    for (const pend of pendingLends) {
+      const tid = pend.tokenId || LENDING_TOKENS.vUSDG;
+      if (!groups[tid]) groups[tid] = { lends: [], pending: [] };
+      groups[tid].pending.push(pend);
+    }
+
+    return groups;
+  })();
 
   return (
     <div className='dashboard-section ds-lend'>
@@ -367,90 +380,110 @@ const YourLends: React.FC<YourLendsProps> = ({
             <p className="empty-state">{DASHBOARD_EMPTY_LENDS_MESSAGE}</p>
           ) : (
             <>
-              {/* Total Lending Summary */}
-              <div 
-                className="asset-balance token-balance-row"
-                onClick={() => setShowDetails(!showDetails)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="token-balance-logo">
-                  <img
-                    src={vUSDGToken?.image}
-                    alt="vUSDG logo"
-                  />
-                </div>
-                <div className="token-balance-info">
-                  <div className="token-balance-title">vUSDG</div>
-                  <div className="token-balance-balances">
-                    <span className="token-balance-label">Total Lent:</span>
-                    <span className="token-balance-label">Average APY:</span>
-                    <span className="token-balance-value">{formatBalance(totalAmountLent, decimals)}</span>
-                    <span className="token-balance-value">
-                      {pendingLends.length > 0 ? (
-                        <div className="lend-skeleton-apy">Calculating...</div>
-                      ) : (
-                        `${averageApy.toFixed(2)}%`
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              {Object.entries(tokenGroups).map(([tokenId, group]) => {
+                const tokenConfig = getTokenConfig(tokenId);
+                const tokenSymbol = tokenConfig?.symbol || 'Unknown';
+                const decimals = tokenConfig?.decimals || 6;
 
-              {/* Lending Details */}
-              {showDetails && (
-                <div className="lends-details">
-                  {/* Pending Lends */}
-                  {pendingLends.map((lend, idx) => (
-                    <div key={idx} className="lend-skeleton">
-                      <div className="lend-skeleton-info">
-                        <div className="lend-skeleton-amount">
-                          {formatBalance(lend.amount, decimals)} vUSDG
-                        </div>
-                        <div className="lend-skeleton-date">
-                          {elapsedTimes[lend.timestamp.toString()] || 'A few seconds ago'}
-                        </div>
+                const groupTotal = group.lends.reduce((t, l) => t + l.amount, BigInt(0)) +
+                  group.pending.reduce((t, l) => t + l.amount, BigInt(0));
+
+                const groupApy = group.lends.length > 0
+                  ? group.lends.reduce((sum, lend) => {
+                      const weight = Number(lend.amount) / Number(groupTotal);
+                      return sum + (lend.apy * weight);
+                    }, 0)
+                  : 0;
+
+                return (
+                  <div key={tokenId}>
+                    {/* Token Summary */}
+                    <div
+                      className="asset-balance token-balance-row"
+                      onClick={() => setShowDetails(!showDetails)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="token-balance-logo">
+                        <img
+                          src={tokenConfig?.image}
+                          alt={`${tokenSymbol} logo`}
+                        />
                       </div>
-                      <div className="lend-skeleton-status">
-                        Processing...
+                      <div className="token-balance-info">
+                        <div className="token-balance-title">{tokenSymbol}</div>
+                        <div className="token-balance-balances">
+                          <span className="token-balance-label">Total Lent:</span>
+                          <span className="token-balance-label">Average APY:</span>
+                          <span className="token-balance-value">{formatBalance(groupTotal, decimals)}</span>
+                          <span className="token-balance-value">
+                            {group.pending.length > 0 ? (
+                              <div className="lend-skeleton-apy">Calculating...</div>
+                            ) : (
+                              `${groupApy.toFixed(2)}%`
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  ))}
 
-                  {/* Active Lends - Sorted by date */}
-                  {lends
-                    .sort((a, b) => b.timestamp - a.timestamp)
-                    .map((lend) => (
-                      <div key={lend.id} className="lend-detail-item">
-                        <div className="lend-detail-info">
-                          <div className="lend-detail-row">
-                            <div className="lend-detail-amount">
-                              {formatBalance(lend.amount, decimals)} vUSDG
+                    {/* Lending Details */}
+                    {showDetails && (
+                      <div className="lends-details">
+                        {/* Pending Lends */}
+                        {group.pending.map((lend, idx) => (
+                          <div key={`pending-${tokenId}-${idx}`} className="lend-skeleton">
+                            <div className="lend-skeleton-info">
+                              <div className="lend-skeleton-amount">
+                                {formatBalance(lend.amount, decimals)} {tokenSymbol}
+                              </div>
+                              <div className="lend-skeleton-date">
+                                {elapsedTimes[lend.timestamp.toString()] || 'A few seconds ago'}
+                              </div>
                             </div>
-                            <div className="lend-detail-date">
-                              {formatDate(lend.timestamp)}
-                            </div>
-                            <div className="lend-detail-apy">
-                              <div>APY:</div>
-                              <div>{lend.apy.toFixed(2)}%</div>
+                            <div className="lend-skeleton-status">
+                              Processing...
                             </div>
                           </div>
-                          <div className="lend-detail-actions">
-                            <button
-                              className={`action-button ${isRedeeming === lend.id ? 'processing' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRedeem(lend);
-                              }}
-                              disabled={isRedeeming === lend.id}
-                            >
-                              Redeem
-                            </button>
-                          </div>
-                        </div>
+                        ))}
+
+                        {/* Active Lends - Sorted by date */}
+                        {group.lends
+                          .sort((a, b) => b.timestamp - a.timestamp)
+                          .map((lend) => (
+                            <div key={lend.id} className="lend-detail-item">
+                              <div className="lend-detail-info">
+                                <div className="lend-detail-row">
+                                  <div className="lend-detail-amount">
+                                    {formatBalance(lend.amount, decimals)} {tokenSymbol}
+                                  </div>
+                                  <div className="lend-detail-date">
+                                    {formatDate(lend.timestamp)}
+                                  </div>
+                                  <div className="lend-detail-apy">
+                                    <div>APY:</div>
+                                    <div>{lend.apy.toFixed(2)}%</div>
+                                  </div>
+                                </div>
+                                <div className="lend-detail-actions">
+                                  <button
+                                    className={`action-button ${isRedeeming === lend.id ? 'processing' : ''}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRedeem(lend);
+                                    }}
+                                    disabled={isRedeeming === lend.id}
+                                  >
+                                    Redeem
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                       </div>
-                    ))}
-                </div>
-              )}
+                    )}
+                  </div>
+                );
+              })}
             </>
           )}
         </div>

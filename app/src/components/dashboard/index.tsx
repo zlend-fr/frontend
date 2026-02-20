@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const handleLendPending = (tokenId: string, amount: bigint, timestamp: number, transactionId: string) => {
-    setPendingLends(prev => [...prev, { amount, timestamp, transactionId }]);
+    setPendingLends(prev => [...prev, { tokenId, amount, timestamp, transactionId }]);
   };
 
   const handleBorrowPending = (tokenId: string, amount: bigint, timestamp: number, collateralAmount: bigint, collateralTokenId: string, transactionId: string) => {
